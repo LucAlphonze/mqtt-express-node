@@ -1,0 +1,66 @@
+version: "3"
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: mqtt-prueba
+    networks:
+      - code-network
+    ports:
+      - 27018:27017
+
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    ports:
+      - ${MQTT_PORT}:${MQTT_PORT}
+      - 9001:9001
+    networks:
+      - code-network
+    volumes:
+      - ./supply/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./supply/users:/mosquitto/config/users
+      - ./tmp/mosquitto/data:/mosquitto/data
+      - ./tmp/mosquitto/log:/mosquitto/log
+    restart: always
+
+  mqtt-bridge:
+    image: "node:17-alpine3.14"
+    container_name: mqtt-bridge
+    depends_on:
+      - rest-api
+    networks:
+      - code-network
+    restart: always
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    volumes:
+      - ./mqtt-bridge:/home/node/app
+    command: "sh start_script.sh"
+
+  rest-api:
+    build: ./rest-api
+    container_name: rest-api
+    depends_on:
+      - mongo
+    networks:
+      - code-network
+    restart: always
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    ports:
+      - 3001:3001 #to outside host:container
+    volumes:
+      - ./rest-api:/home/node/app
+    command: "sh start_script.sh"
+
+networks:
+  code-network:
+    driver: bridge
