@@ -1,10 +1,9 @@
 const mongoose = require("mongoose");
 const dbConnection = async () => {
-  var atlas =
-    "mongodb+srv://admin:Vg2b7rO6bx8qDFsW@cluster0.xvqceg8.mongodb.net/?retryWrites=true&w=majority";
-  // var db = process.env.DB_CNN
+  // var atlas = 'mongodb://52.15.124.164:27018/monitor'
+  var db = process.env.DB_CNN;
   try {
-    await mongoose.connect(atlas);
+    await mongoose.connect(db);
     console.log("BD Online");
   } catch (error) {
     console.log(error);

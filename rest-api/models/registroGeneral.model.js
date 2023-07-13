@@ -4,7 +4,7 @@ const RegistroGeneralSchema = Schema({
   id_variable: {
     type: Schema.Types.ObjectId,
     ref: "Variable",
-    required: true,
+    // required: true,
   },
   fecha_lectura: {
     type: Date,

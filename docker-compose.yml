@@ -11,6 +11,8 @@ services:
       - code-network
     ports:
       - 27018:27017
+    volumes:
+      - ./tmp/mongodb:/data/db
 
   mosquitto:
     image: eclipse-mosquitto
@@ -36,6 +38,9 @@ services:
       - code-network
     restart: always
     user: "node"
+    ports:
+      - 3000:3000
+
     working_dir: /home/node/app
     environment:
       - NODE_ENV=${NODE_ENV}

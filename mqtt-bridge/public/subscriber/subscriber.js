@@ -1,43 +1,44 @@
 let mqttClient;
 
-window.addEventListener('load', (event)=>{
-    connectToBroker();
+window.addEventListener("load", (event) => {
+  connectToBroker();
 
-    const subscribeBtn = document.querySelector("#subscribe");
-    subscribeBtn.addEventListener('click', function(){
-        subscribeToTopic();
-    });
+  const subscribeBtn = document.querySelector("#subscribe");
+  subscribeBtn.addEventListener("click", function () {
+    subscribeToTopic();
+  });
 
-    const unSubscribeBtn = document.querySelector("#unsubscribe");
-    unSubscribeBtn.addEventListener('click', function(){
-        unsubscribeToTopic();
-    });
+  const unSubscribeBtn = document.querySelector("#unsubscribe");
+  unSubscribeBtn.addEventListener("click", function () {
+    unsubscribeToTopic();
+  });
 });
 
-function connectToBroker(){
-    const clientId = "client" + Math.random().toString(36).substring(7);
+function connectToBroker() {
+  const clientId = "sub_client";
+  const host = "ws://localhost:9001/mqtt";
 
-    const host = "ws://192.168.100.105:9001/mqtt"
+  const options = {
+    keepAlive: 60,
+    clientId: clientId,
+    protocolId: "MQTT",
+    protocolVersion: 4,
+    clean: true,
+    reconnectPeriod: 1000,
+    connectTimeout: 30 * 1000,
+    username: "sub_client",
+    password: "subclient",
+  };
 
-    const options = {
-        keepAlive: 60,
-        clientId: clientId,
-        protocolId: "MQTT",
-        protocolVersion: 4,
-        clean: true,
-        reconnectPeriod: 1000,
-        connectTimeout: 30 * 1000
-    };
-
-    mqttClient = mqtt.connect(host, options);
+  mqttClient = mqtt.connect(host, options);
 
   mqttClient.on("error", (err) => {
     console.log("Error: ", err);
     mqttClient.end();
   });
 
-  mqttClient.on("reconnect", () => {
-    console.log("Reconnecting...");
+  mqttClient.on("reconnect", (err) => {
+    console.log("Reconnecting...", err);
   });
 
   mqttClient.on("connect", () => {
@@ -52,24 +53,24 @@ function connectToBroker(){
     const messageTextArea = document.querySelector("#message");
     messageTextArea.value += message + "\r\n";
   });
-
 }
+
 function subscribeToTopic() {
-    const status = document.querySelector("#status");
-    const topic = document.querySelector("#topic").value.trim();
-    console.log(`Subscribing to Topic: ${topic}`);
-  
-    mqttClient.subscribe(topic, { qos: 0 });
-    status.style.color = "green";
-    status.value = "SUBSCRIBED";
-  }
-  
-  function unsubscribeToTopic() {
-    const status = document.querySelector("#status");
-    const topic = document.querySelector("#topic").value.trim();
-    console.log(`Unsubscribing to Topic: ${topic}`);
-  
-    mqttClient.unsubscribe(topic, { qos: 0 });
-    status.style.color = "red";
-    status.value = "UNSUBSCRIBED";
-  }
+  const status = document.querySelector("#status");
+  const topic = document.querySelector("#topic").value.trim();
+  console.log(`Subscribing to Topic: ${topic}`);
+
+  mqttClient.subscribe(topic, { qos: 0 });
+  status.style.color = "green";
+  status.value = "SUBSCRIBED";
+}
+
+function unsubscribeToTopic() {
+  const status = document.querySelector("#status");
+  const topic = document.querySelector("#topic").value.trim();
+  console.log(`Unsubscribing to Topic: ${topic}`);
+
+  mqttClient.unsubscribe(topic, { qos: 0 });
+  status.style.color = "red";
+  status.value = "UNSUBSCRIBED";
+}
